@@ -2,10 +2,12 @@ package com.sling.webflux.webflux;
 
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.websocket.server.PathParam;
 import java.util.Date;
 import java.util.Random;
 
@@ -43,7 +45,12 @@ public class WebFluxController {
         });
     }
 
-
+    /**
+     * http://localhost:5017/stream
+     * 持续10论请求
+     *
+     * @return
+     */
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> flux() {
         return Flux.create(sink -> {
@@ -53,9 +60,12 @@ public class WebFluxController {
                     try {
                         Thread.sleep(tmp * 1000);
                     } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
+                    System.out.println(new Date() + "\t\t waited " + tmp + " seconds");
                     sink.next(new Date() + "\t\t waited " + tmp + " seconds");
                 }
+                System.out.println(new Date() + "\t\t end");
                 sink.next(new Date() + "\t\t end");
 
                 sink.complete();
@@ -63,5 +73,29 @@ public class WebFluxController {
         });
     }
 
+    @GetMapping(value = "/stream/{uid}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> flux2(@PathVariable("uid") String uid) {
+        return Flux.create(sink -> {
+            new Thread(() -> {
+                try {
+                    while (true) {
+                        int tmp = new Random().nextInt(8);
+                        try {
+                            Thread.sleep(tmp * 1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        String str = "uid=" + uid + " " + new Date() + "\t\t waited " + tmp + " seconds";
+                        System.out.println(str);
+                        sink.next(str);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    sink.next(new Date() + "\t\t end");
+                    sink.complete();
+                }
+            }).start();
+        });
+    }
 
 }
