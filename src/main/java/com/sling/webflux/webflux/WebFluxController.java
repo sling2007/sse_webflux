@@ -73,6 +73,12 @@ public class WebFluxController {
         });
     }
 
+
+    /**
+     * http://localhost:5017/stream/user123
+     * 死循环推送数据
+     * @return
+     */
     @GetMapping(value = "/stream/{uid}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> flux2(@PathVariable("uid") String uid) {
         return Flux.create(sink -> {
