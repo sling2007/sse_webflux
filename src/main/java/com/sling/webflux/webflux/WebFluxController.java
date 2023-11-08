@@ -35,6 +35,8 @@ public class WebFluxController {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
+
+
                 }
                 sink.success("pq3");
             }).start();
