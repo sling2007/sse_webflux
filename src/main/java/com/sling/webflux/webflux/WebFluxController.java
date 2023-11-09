@@ -1,6 +1,7 @@
 package com.sling.webflux.webflux;
 
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,37 +19,15 @@ import java.util.Random;
  * Description:
  **/
 @RestController
+@CrossOrigin
 public class WebFluxController {
 
-    @GetMapping("/1")
-    public String getUser1() { // 普通响应也没问题
-        return "pq1";
-    }
-
-    @GetMapping("/2")
-    public Mono<String> getUser2() { // 支持返回Mono
-        return Mono.just("pq2");
-    }
-
-    @GetMapping("/3")
-    public Mono<String> getUser3() { // 异步完全没问题
-        return Mono.create(sink -> {
-            new Thread(() -> {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-
-
-                }
-                sink.success("pq3");
-            }).start();
-        });
-    }
 
     /**
      * http://localhost:5017/stream
      * 持续10论请求
      *
+     * 在/resource/static/s.html中，有发起这个webflux的sse请求的前端代码，可以参照。
      * @return
      */
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -77,6 +56,8 @@ public class WebFluxController {
     /**
      * http://localhost:5017/stream/user123
      * 死循环推送数据
+     *
+     * 在/resource/static/s.html中，有发起这个webflux的sse请求的前端代码，可以参照。
      * @return
      */
     @GetMapping(value = "/stream/{uid}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -104,4 +85,30 @@ public class WebFluxController {
         });
     }
 
+
+
+    @GetMapping("/1")
+    public String getUser1() { // 普通响应也没问题
+        return "pq1";
+    }
+
+    @GetMapping("/2")
+    public Mono<String> getUser2() { // 支持返回Mono
+        return Mono.just("pq2");
+    }
+
+    @GetMapping("/3")
+    public Mono<String> getUser3() { // 异步完全没问题
+        return Mono.create(sink -> {
+            new Thread(() -> {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+
+
+                }
+                sink.success("pq3");
+            }).start();
+        });
+    }
 }
