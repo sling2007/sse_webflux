@@ -11,7 +11,7 @@
 	<groupId>com.sling.webflux</groupId>
 	<artifactId>webflux</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>webflux</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
@@ -25,6 +25,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webflux</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>1.2.83_noneautotype</version>
 		</dependency>
 
 		<dependency>
