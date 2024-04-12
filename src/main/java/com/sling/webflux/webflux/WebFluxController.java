@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @CrossOrigin
 public class WebFluxController {
 
+    // 注意：！！！主动推送数据的sink集合
     public static ConcurrentHashMap<String, FluxSink<String>> clients = new ConcurrentHashMap<>();
 
     @GetMapping(value = "/streamWithId/{uuid}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -35,21 +36,18 @@ public class WebFluxController {
         return Flux.create(sink -> {
             log.info("---> access sse flux request, threadId=" + Thread.currentThread().getId());
             clients.put(uuid, sink);
+
+            // 消费端拉取数据
 //            sink.onRequest(i -> {
-//                log.info("sse flux request on , threadId=" + Thread.currentThread().getId());
-//
-//                new Thread(() -> {
-//                    for (int j = 0; j < i; j++) {
-//                        try {
-//                            String msg = "--->heartbeat, threadId=" + Thread.currentThread().getId() + "," + new Date();
-//                            sink.next(msg);
-//                            log.info(msg);
-//                            Thread.sleep(3000L);
-//                        } catch (Exception e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                }).start();
+//                String msg = "------------------------------------->consumer pulling, i=" + i + ", userId = " + uuid + ", threadId=" + Thread.currentThread().getId() + ", date=" + new Date();
+//                log.info(msg);
+//                sink.next(msg);
+//            });
+//            sink.onRequest(n -> {
+//                List<String> messages = myMessageProcessor.request(n);  // 3
+//                for(String s : message) {
+//                    sink.next(s);
+//                }
 //            });
 
             sink.onCancel(() -> {
@@ -69,22 +67,21 @@ public class WebFluxController {
         });
     }
 
-
+    // 注意：！！！！！！后端主动推送数据，onRequest则是消费端拉取数据。
     @PostConstruct
     public void sendWhenBizNeed() {
-
         new Thread(() -> {
             while (true) {
-
                 for (Map.Entry<String, FluxSink<String>> entry : clients.entrySet()) {
                     String key = entry.getKey();
                     FluxSink<String> sink = entry.getValue();
-                    String msg = "------------------------------------->biz info pushing, for userId = " + key + ", threadId=" + Thread.currentThread().getId() + ", date=" + new Date();
+                    String msg = "------------------------------------->producer pushing, for userId = " + key + ", threadId=" + Thread.currentThread().getId() + ", date=" + new Date();
                     log.info(msg);
                     sink.next(msg);
                 }
 
                 try {
+//                    Thread.sleep(15000L);
                     Thread.sleep(5000L);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -102,6 +99,8 @@ public class WebFluxController {
         log.info("access sse flux request, threadId=" + Thread.currentThread().getId());
         final AtomicBoolean isStarted = new AtomicBoolean(true);
 
+        // !!!!这是错误写法!!!!，onRequest会一直收到消息，打印数据。
+        // 消费端拉取数据时，不必启动一个thread。否则会有很多重复的thread。
         sink.onRequest(i -> {
             log.info("sse flux request on , threadId=" + Thread.currentThread().getId());
             new Thread(() -> {
