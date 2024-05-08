@@ -87,6 +87,9 @@ public class SinkContainer {
         if(log.isDebugEnabled()){
             log.debug("sse push, userId={}, msg={}", userId, msg);
         }
+        if(userId == null){
+            throw new RuntimeException();
+        }
         getClientByUserId(userId).next(msg);
     }
 
