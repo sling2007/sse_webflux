@@ -7,16 +7,16 @@
 <script src="jquery-3.7.1.min.js" type="text/javascript" ></script>
 
 <body>
-	<a href = "http://localhost:5017/streamWithId/hhhh" target="_blank">打开用户hhhh</a>
+	<a href = "http://localhost:10021/stream/hhhh" target="_blank">打开用户hhhh</a>
 	<br/>
-	<a href = "http://localhost:5017/streamWithId/987654321" target="_blank">打开用户987654321</a>
+	<a href = "http://localhost:10021/stream/987654321" target="_blank">打开用户987654321</a>
 	<div id="message"></div>
 </body>
 <script type="text/javascript">
     window.onload = function () {
         //双不等号，可以避免为空值的判断
         if (!!window.EventSource) {
-			var url="http://localhost:5017/streamWithId/123abc";
+			var url="http://localhost:10021/stream/123abc";
 			// var url="http://localhost:5017/stream";
 			console.log("发起请求:"+url);
 			showText("发起请求:"+url);
